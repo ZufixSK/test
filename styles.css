@@ -1,8 +1,9 @@
 /* Tesco styling */
 :root{
   --tesco-blue:#00539F;
+  --tesco-blue-600:#0A4A83;
   --tesco-red:#EE1C2E;
-  --tesco-light:#F5F7FA;
+  --tesco-light:#F1F6FD;
   --ink:#0D1B2A;
   --muted:#6B7280;
   --ok:#2E7D32;
@@ -15,24 +16,24 @@ html,body{height:100%}
 body{
   margin:0;
   font-family: "Tesco Modern","Tesco","Arial","Helvetica Neue",system-ui,sans-serif;
-  color:var(--ink);
-  background:var(--tesco-light);
+  color:#0d2038;
+  background:linear-gradient(180deg, #E7F0FB 0%, var(--tesco-light) 40%);
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
 }
 
 .app-header{
   position:sticky;top:0;z-index:100;
-  background:#fff;border-bottom:4px solid var(--tesco-red);
+  background:var(--tesco-blue);border-bottom:4px solid var(--tesco-red);
 }
-.brand{display:flex;align-items:center;gap:.75rem;padding:.8rem 1rem;max-width:1100px;margin:0 auto}
-.tesco-logo{color:var(--tesco-red);font-weight:800;letter-spacing:.2rem;font-size:1.5rem}
-.title{font-size:1.1rem;color:var(--tesco-blue);font-weight:600}
+.brand{display:flex;align-items:center;gap:.75rem;padding:.9rem 1rem;max-width:1100px;margin:0 auto}
+.tesco-logo{color:#fff;font-weight:900;letter-spacing:0;font-size:1.6rem}
+.title{font-size:1.1rem;color:#DCEBFC;font-weight:600}
 
 .container{max-width:1100px;margin:1rem auto;padding:0 1rem}
 .card{
-  background:#fff;border:1px solid #e5e7eb;border-radius:16px;
-  padding:1rem;box-shadow:0 6px 24px rgba(0,0,0,.05)
+  background:#fff;border:1px solid #cfe0f5;border-radius:16px;
+  padding:1rem;box-shadow:0 8px 28px rgba(0,83,159,.12)
 }
 
 .grid{display:grid;gap:1rem}
@@ -62,7 +63,8 @@ body{
 .btn-primary{background:var(--tesco-blue);border-color:var(--tesco-blue);color:#fff}
 .btn-danger{background:var(--tesco-red);border-color:var(--tesco-red);color:#fff}
 .btn-accent{background:#fff;border-color:var(--tesco-blue);color:var(--tesco-blue)}
-.btn-outline{background:#fff;border-color:#cbd5e1;color:#111}
+.btn-outline{background:#fff;border-color:#a6c3ea;color:var(--tesco-blue)}
+.btn:hover{box-shadow:0 4px 14px rgba(0,83,159,.18)}
 
 .hidden{display:none !important}
 

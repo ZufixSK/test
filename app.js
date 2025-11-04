@@ -23,6 +23,23 @@
   const yearEl = document.getElementById("year");
   yearEl.textContent = new Date().getFullYear();
 
+  // Helper: resolve ZXing namespace (supports ZXing, ZXingBrowser)
+  function getZX(){
+    const z = window.ZXing || window.ZXingBrowser || null;
+    return z;
+  }
+  async function stopScanner(){
+    try{
+      if(codeReader && codeReader.reset){ await codeReader.reset(); }
+    }catch(e){}
+    if(currentStream){ currentStream.getTracks().forEach(t=>t.stop()); currentStream=null; }
+    if(scanInterval){ clearInterval(scanInterval); scanInterval=null; }
+    scanning=false;
+    scannerWrap.classList.add("hidden");
+    scanToggle.setAttribute("aria-pressed","false");
+  }
+
+
   // State
   let ticker = null;
   let startedAt = null;
@@ -33,6 +50,7 @@
   let scanning = false;
   let codeReader = null;
   let currentStream = null;
+  let scanInterval = null;
 
   function msToHMS(ms){
     const sec = Math.floor(ms/1000);
@@ -83,6 +101,9 @@
     setStatus("Pripravené"); refreshTimer();
     setRunningUI(false); setPausedUI(false);
     leftoverInput.value = "";
+    // Keep name pre-filled for rýchlosť, vymaž kód palety
+    palletInput.value = "";
+    stopScanner();
   }
 
   function requireInputs(){
@@ -95,45 +116,60 @@
   }
 
   // ZXing scanning
+  
   async function toggleScanner(){
     try{
-      if(scanning){
-        scanning = false;
-        scanToggle.setAttribute("aria-pressed","false");
-        scannerWrap.classList.add("hidden");
-        if(codeReader){await codeReader.reset();}
-        if(currentStream){ currentStream.getTracks().forEach(t=>t.stop()); currentStream=null; }
-        return;
-      }
+      if(scanning){ await stopScanner(); return; }
       scanning = true;
       scanToggle.setAttribute("aria-pressed","true");
       scannerWrap.classList.remove("hidden");
 
-      codeReader = new ZXing.BrowserMultiFormatReader();
-      const devices = await ZXing.BrowserCodeReader.listVideoInputDevices();
-      const backCam = devices.find(d=>/back|rear|environment/i.test(d.label)) || devices[0];
-      currentStream = await navigator.mediaDevices.getUserMedia({video: backCam ? {deviceId: backCam.deviceId} : {facingMode:"environment"}});
-      videoEl.srcObject = currentStream;
-      await videoEl.play();
-
-      const controls = await codeReader.decodeFromVideoDevice(
-        backCam ? backCam.deviceId : null,
-        videoEl,
-        (result, err) => {
+      // Try ZXing first
+      const ZX = getZX();
+      if (ZX && (ZX.BrowserMultiFormatReader || (ZX.default && ZX.default.BrowserMultiFormatReader))) {
+        const Reader = ZX.BrowserMultiFormatReader || ZX.default.BrowserMultiFormatReader;
+        codeReader = new Reader();
+        const devices = await (Reader.listVideoInputDevices ? Reader.listVideoInputDevices() : ZX.BrowserCodeReader.listVideoInputDevices());
+        const backCam = devices && devices.find(d=>/back|rear|environment/i.test(d.label)) || (devices && devices[0]) || null;
+        currentStream = await navigator.mediaDevices.getUserMedia({video: backCam ? {deviceId: backCam.deviceId} : {facingMode:'environment'}});
+        videoEl.srcObject = currentStream;
+        await videoEl.play();
+        await codeReader.decodeFromVideoDevice(backCam ? backCam.deviceId : null, videoEl, (result, err) => {
           if(result){
-            palletInput.value = result.getText();
-            toggleScanner(); // auto stop scanner
+            palletInput.value = result.getText ? result.getText() : (result.text || '');
+            stopScanner();
           }
-        }
-      );
+        });
+        return;
+      }
+
+      // Fallback: BarcodeDetector (Chrome/Edge/Samsung)
+      if ('BarcodeDetector' in window) {
+        const formats = ['ean_13','code_128','ean_8','upc_a','upc_e','code_39','itf'];
+        const detector = new window.BarcodeDetector({formats});
+        currentStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+        videoEl.srcObject = currentStream;
+        await videoEl.play();
+        scanInterval = setInterval(async () => {
+          try{
+            const codes = await detector.detect(videoEl);
+            if(codes && codes.length){
+              palletInput.value = codes[0].rawValue || codes[0].raw || '';
+              await stopScanner();
+            }
+          }catch(e){ /* silent */ }
+        }, 250);
+        return;
+      }
+
+      throw new Error('Skenovanie nie je podporované v tomto prehliadači.');
     }catch(e){
       console.error(e);
       alert("Skenovanie zlyhalo: " + (e.message || e));
-      scanning = false;
-      scannerWrap.classList.add("hidden");
-      scanToggle.setAttribute("aria-pressed","false");
+      await stopScanner();
     }
   }
+
 
   // Events
   scanToggle.addEventListener("click", toggleScanner);
@@ -230,9 +266,9 @@
       });
       if(!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
-      alert("Uložené. ID: " + data.id);
       stopDialog.close();
       resetAll();
+      alert("Uložené. ID: " + data.id);
     }catch(e){
       console.error(e);
       alert("Ukladanie zlyhalo. Skús neskôr alebo kontaktuj správcu.");
