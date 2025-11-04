@@ -1,0 +1,81 @@
+/* Tesco styling */
+:root{
+  --tesco-blue:#00539F;
+  --tesco-red:#EE1C2E;
+  --tesco-light:#F5F7FA;
+  --ink:#0D1B2A;
+  --muted:#6B7280;
+  --ok:#2E7D32;
+  --warn:#B26A00;
+}
+
+*{box-sizing:border-box}
+
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: "Tesco Modern","Tesco","Arial","Helvetica Neue",system-ui,sans-serif;
+  color:var(--ink);
+  background:var(--tesco-light);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+.app-header{
+  position:sticky;top:0;z-index:100;
+  background:#fff;border-bottom:4px solid var(--tesco-red);
+}
+.brand{display:flex;align-items:center;gap:.75rem;padding:.8rem 1rem;max-width:1100px;margin:0 auto}
+.tesco-logo{color:var(--tesco-red);font-weight:800;letter-spacing:.2rem;font-size:1.5rem}
+.title{font-size:1.1rem;color:var(--tesco-blue);font-weight:600}
+
+.container{max-width:1100px;margin:1rem auto;padding:0 1rem}
+.card{
+  background:#fff;border:1px solid #e5e7eb;border-radius:16px;
+  padding:1rem;box-shadow:0 6px 24px rgba(0,0,0,.05)
+}
+
+.grid{display:grid;gap:1rem}
+.field label{display:block;font-weight:600;margin-bottom:.35rem}
+.field input, .field select{
+  width:100%;padding:.8rem .9rem;border:1px solid #cbd5e1;border-radius:12px;
+  font-size:1rem;outline:none
+}
+.field input:focus, .field select:focus{border-color:var(--tesco-blue);box-shadow:0 0 0 3px rgba(0,83,159,.15)}
+
+.scan-row{display:flex;gap:.5rem}
+.scan-row input{flex:1}
+.scanner{margin-top:.5rem;border:2px dashed #cbd5e1;border-radius:14px;overflow:hidden;background:#fafafa}
+.scanner video{width:100%;height:auto;display:block}
+.scanner-tip{padding:.35rem .6rem;font-size:.9rem;color:#555}
+
+.timer-row{display:flex;align-items:center;justify-content:space-between;padding:.5rem .25rem}
+.timer{font-variant-numeric:tabular-nums;font-size:2rem;font-weight:800;color:var(--tesco-blue)}
+.status{color:var(--muted)}
+
+.actions{display:flex;gap:.5rem;flex-wrap:wrap}
+.btn{
+  border:1px solid #cbd5e1;background:#fff;color:#111;padding:.7rem 1rem;border-radius:12px;font-weight:600;cursor:pointer
+}
+.btn:hover{filter:brightness(.98)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--tesco-blue);border-color:var(--tesco-blue);color:#fff}
+.btn-danger{background:var(--tesco-red);border-color:var(--tesco-red);color:#fff}
+.btn-accent{background:#fff;border-color:var(--tesco-blue);color:var(--tesco-blue)}
+.btn-outline{background:#fff;border-color:#cbd5e1;color:#111}
+
+.hidden{display:none !important}
+
+/* Modal */
+.modal::backdrop{background:rgba(0,0,0,.35)}
+.modal{border:none;border-radius:16px;padding:0}
+.modal-content{padding:1rem 1rem 0;min-width:min(92vw, 480px)}
+.modal-actions{display:flex;gap:.5rem;justify-content:flex-end;padding:1rem}
+
+.app-footer{max-width:1100px;margin:1rem auto;padding:0 1rem;color:#6b7280}
+
+@media (min-width:720px){
+  .grid{grid-template-columns:1fr 1fr}
+  .timer-row{grid-column:1/-1}
+  .actions{grid-column:1/-1}
+}
